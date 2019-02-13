@@ -17,16 +17,19 @@ typedef struct s_info {
 	FILE	*file;
 }			t_param;
 
-void	handle_error(t_param info) {
+void	exit_routine(t_param info) {
+	int		err = 0;
+
 	if (errno) {
 		fprintf(stderr, "[ERROR] %s\n", strerror(errno));
+		err = 1;
 	}
 	free(info.target);
 	fclose(info.file);
-	exit(1);
+	exit(err);
 }
 
-int		prepend_in_file(t_param info, char *target) {
+void		prepend_in_file(t_param info, char *target) {
 	char	buf[MAX_LINESIZE];
 	char	line = 0;
 	fpos_t	pos;
@@ -55,11 +58,7 @@ int		prepend_in_file(t_param info, char *target) {
 		line++;
 	}
 
-	if (errno) {
-		handle_error(info);
-	}
-
-	return (1);
+	exit_routine(info);
 }
 
 int		main(int ac, char **av) {
@@ -84,7 +83,7 @@ int		main(int ac, char **av) {
 		fprintf(stderr, "[ERROR] Cannot open file '%s': %s\n", av[1], strerror(errno));
 		return (1);
 	}
-	if (!(info.target = strdup(av[2]))) {handle_error(info);}
+	if (!(info.target = strdup(av[2]))) {exit_routine(info);}
 
-	return ((prepend_in_file(info, av[3])) != 0);
+	prepend_in_file(info, av[3]);
 }
